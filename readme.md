@@ -1,71 +1,194 @@
-🚗 API de Gerenciamento de Carros (CRUD)
-Este projeto é uma aplicação backend para o gerenciamento de uma garagem de veículos, desenvolvida como parte do laboratório de Banco de Dados Não Relacionais. A aplicação utiliza FastAPI para a construção da API e MongoDB como banco de dados NoSQL, rodando em um ambiente conteinerizado com Docker.
+# API de Carros com MongoDB
 
-🏗️ Arquitetura do Projeto
-O projeto segue uma arquitetura modular para garantir a separação de responsabilidades e facilitar a manutenção:
+API REST para cadastro e gerenciamento de carros, desenvolvida com FastAPI e MongoDB.
 
-app/routers/: Camada de entrada das requisições HTTP e definição dos endpoints.
+## Objetivo
 
-app/services/: Contém a lógica de negócio, tratamento de erros e a conexão com o banco de dados.
+Este projeto implementa um CRUD completo para carros com arquitetura modular, separando:
 
-app/repositories/: Responsável pela comunicação direta e persistência de dados no MongoDB.
+- roteamento
+- regra de negocio
+- acesso a dados
+- validacao de schema
 
-app/schemas/: Definição dos modelos de dados (Schemas) utilizando Pydantic para validação.
+## Stack
 
-🛠️ Tecnologias Utilizadas
-Python 3.12
+- Python
+- FastAPI
+- MongoDB
+- PyMongo
+- Docker Compose
 
-FastAPI (Framework Web)
+## Estrutura do Projeto
 
-MongoDB (Banco de Dados NoSQL)
+```text
+.
+├── compose.yaml
+├── main.py
+├── requirements.txt
+└── app
+		├── repositories
+		│   └── carro_repository.py
+		├── routers
+		│   └── carro_router.py
+		├── schemas
+		│   └── carro_schema.py
+		└── services
+				├── carro_service.py
+				└── database.py
+```
 
-Docker & Docker Compose (Containerização)
+## Modelo de Dados
 
-Pydantic (Validação de Dados)
+O schema `Carro` possui os campos:
 
-PyMongo (Driver de conexão MongoDB)
+- `marca` (string)
+- `modelo` (string)
+- `ano` (inteiro)
+- `cor` (string)
 
-📋 Atributos do Schema (Carro)
-Conforme os requisitos da tarefa, o modelo de dados possui 4 atributos principais:
+Exemplo de payload:
 
-Marca: str
+```json
+{
+  "marca": "Toyota",
+  "modelo": "Corolla",
+  "ano": 2022,
+  "cor": "Prata"
+}
+```
 
-Modelo: str
+## Como Executar
 
-Ano: int
+### 1. Clonar o repositorio
 
-Cor: str
-
-🚀 Como Rodar o Projeto
-1. Clonar o Repositório
-Bash
-git clone https://github.com/seu-usuario/api-carros-mongodb.git
+```bash
+git clone https://github.com/DanielDaigo/api-carros-mongodb.git
 cd api-carros-mongodb
-2. Subir o Banco de Dados (Docker)
-A aplicação utiliza um container MongoDB rodando na porta 27019.
+```
 
-Bash
-docker-compose up -d
-3. Configurar o Ambiente Python
-Crie um ambiente virtual e instale as dependências listadas no requirements.txt:
+### 2. Subir o MongoDB com Docker
 
-PowerShell
+```bash
+docker compose up -d
+```
+
+O MongoDB sera exposto localmente em `localhost:27019`.
+
+### 3. Criar e ativar ambiente virtual
+
+No Windows (PowerShell):
+
+```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+```
+
+### 4. Instalar dependencias
+
+```bash
 pip install -r requirements.txt
-4. Iniciar a API
-Bash
+```
+
+### 5. Rodar a API
+
+```bash
 uvicorn main:app --reload
-🔌 Endpoints da API
-Com a aplicação rodando, você pode acessar a documentação automática (Swagger UI) em:
-👉 http://localhost:8000/docs
+```
 
-GET /carros: Lista todos os veículos cadastrados.
+API disponivel em:
 
-POST /carros: Cadastra um novo veículo.
+- `http://127.0.0.1:8000`
+- Swagger UI: `http://127.0.0.1:8000/docs`
 
-GET /carros/{carro_id}: Busca um veículo específico pelo ID.
+## Endpoints
 
-PUT /carros/{carro_id}: Atualiza os dados de um veículo existente.
+Base URL: `http://127.0.0.1:8000`
 
-DELETE /carros/{carro_id}: Remove um veículo do sistema.
+### `GET /`
+
+Retorna mensagem de status da API.
+
+Resposta:
+
+```json
+{
+  "message": "API de Carros Modular rodando com sucesso!"
+}
+```
+
+### `GET /carros`
+
+Lista todos os carros cadastrados.
+
+### `POST /carros`
+
+Cria um novo carro.
+
+Corpo esperado:
+
+```json
+{
+  "marca": "Honda",
+  "modelo": "Civic",
+  "ano": 2021,
+  "cor": "Preto"
+}
+```
+
+Resposta de sucesso:
+
+```json
+{
+  "message": "Carro criado",
+  "id": "<id_gerado>"
+}
+```
+
+### `GET /carros/{carro_id}`
+
+Busca um carro pelo ID.
+
+Possiveis respostas de erro:
+
+```json
+{
+  "error": "Formato de ID invalido"
+}
+```
+
+```json
+{
+  "error": "Carro nao encontrado"
+}
+```
+
+### `PUT /carros/{carro_id}`
+
+Atualiza um carro existente pelo ID.
+
+Resposta de sucesso:
+
+```json
+{
+  "message": "Carro atualizado com sucesso"
+}
+```
+
+### `DELETE /carros/{carro_id}`
+
+Remove um carro pelo ID.
+
+Resposta de sucesso:
+
+```json
+{
+  "message": "Carro deletado com sucesso"
+}
+```
+
+## Observacoes
+
+- A conexao com MongoDB esta definida em `app/services/database.py` usando a URL `mongodb://localhost:27019/`.
+- O banco utilizado e `garagem_db` e a collection e `carros`.
+- As validacoes de entrada sao feitas com Pydantic via schema `Carro`.
