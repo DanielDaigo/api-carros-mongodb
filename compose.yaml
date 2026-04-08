@@ -1,0 +1,12 @@
+services:
+  mongodb_carros:
+    image: mongo:latest
+    container_name: db-carros
+    ports:
+      - "27019:27017" # Nova porta para não conflitar com a 27018
+    volumes:
+      - mongo_carros_data:/data/db
+    restart: always
+
+volumes:
+  mongo_carros_data:
